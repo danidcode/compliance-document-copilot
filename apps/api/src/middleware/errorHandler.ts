@@ -1,9 +1,19 @@
 import type { ErrorRequestHandler } from "express";
 import { ZodError } from "zod";
+import { logger } from "../config/logger.js";
 import { isAppError } from "../http/errors.js";
 
-export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
+export const errorHandler: ErrorRequestHandler = (error, req, res, _next) => {
   if (error instanceof ZodError) {
+    logger.warn(
+      {
+        err: error,
+        requestId: req.id,
+        method: req.method,
+        path: req.path
+      },
+      "request validation failed"
+    );
     res.status(400).json({
       error: {
         code: "validation_error",
@@ -15,6 +25,17 @@ export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
   }
 
   if (isAppError(error)) {
+    logger.warn(
+      {
+        err: error,
+        requestId: req.id,
+        method: req.method,
+        path: req.path,
+        code: error.code,
+        details: error.details
+      },
+      "application error"
+    );
     res.status(error.statusCode).json({
       error: {
         code: error.code,
@@ -24,7 +45,15 @@ export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
     return;
   }
 
-  reqSafeLog(error);
+  logger.error(
+    {
+      err: error,
+      requestId: req.id,
+      method: req.method,
+      path: req.path
+    },
+    "unhandled request error"
+  );
   res.status(500).json({
     error: {
       code: "internal_error",
@@ -32,7 +61,3 @@ export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
     }
   });
 };
-
-function reqSafeLog(error: unknown) {
-  console.error(error);
-}

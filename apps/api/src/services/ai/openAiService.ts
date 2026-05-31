@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { env } from "../../config/env.js";
 import { AppError } from "../../http/errors.js";
+import { mapOpenAiError } from "./openAiErrorMapper.js";
 
 export type GenerateAnswerInput = {
   question: string;
@@ -19,10 +20,12 @@ export class OpenAiService {
     }
     ensureOpenAiKey();
 
-    const response = await this.client.embeddings.create({
-      model: env.OPENAI_EMBEDDING_MODEL,
-      input: texts
-    });
+    const response = await this.client.embeddings
+      .create({
+        model: env.OPENAI_EMBEDDING_MODEL,
+        input: texts
+      })
+      .catch(mapOpenAiError);
 
     return response.data.map((item) => item.embedding);
   }
@@ -38,21 +41,23 @@ export class OpenAiService {
   async generateGroundedAnswer(input: GenerateAnswerInput): Promise<string> {
     ensureOpenAiKey();
 
-    const response = await this.client.responses.create({
-      model: env.OPENAI_CHAT_MODEL,
-      temperature: input.temperature,
-      input: [
-        {
-          role: "system",
-          content:
-            "You are Compliance Document Copilot. Answer only from the provided context. If the context is insufficient, say what is missing. Keep the answer concise and grounded."
-        },
-        {
-          role: "user",
-          content: `Context:\n${input.context}\n\nQuestion:\n${input.question}`
-        }
-      ]
-    });
+    const response = await this.client.responses
+      .create({
+        model: env.OPENAI_CHAT_MODEL,
+        temperature: input.temperature,
+        input: [
+          {
+            role: "system",
+            content:
+              "You are Compliance Document Copilot. Answer only from the provided context. If the context is insufficient, say what is missing. Keep the answer concise and grounded."
+          },
+          {
+            role: "user",
+            content: `Context:\n${input.context}\n\nQuestion:\n${input.question}`
+          }
+        ]
+      })
+      .catch(mapOpenAiError);
 
     return response.output_text.trim();
   }
