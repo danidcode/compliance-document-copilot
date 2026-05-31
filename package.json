@@ -1,0 +1,23 @@
+{
+  "name": "compliance-document-copilot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Production-style AI Engineering learning project for PDF indexing, vector search, and RAG over compliance documents.",
+  "packageManager": "pnpm@10.12.1",
+  "scripts": {
+    "dev": "docker compose up --build",
+    "dev:local": "pnpm --filter @cdc/contracts build && pnpm --parallel --filter @cdc/api --filter @cdc/web dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm --filter @cdc/contracts build && pnpm -r --filter '!@cdc/contracts' typecheck",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "db:migrate": "pnpm --filter @cdc/api db:migrate",
+    "db:seed": "pnpm --filter @cdc/api db:seed",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3"
+  }
+}
