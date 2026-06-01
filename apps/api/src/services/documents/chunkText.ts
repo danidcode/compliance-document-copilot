@@ -14,7 +14,10 @@ export type ChunkTextOptions = {
   overlapChars?: number;
 };
 
-export function chunkPages(pages: ExtractedPage[], options: ChunkTextOptions = {}): TextChunk[] {
+export function chunkPages(
+  pages: ExtractedPage[],
+  options: ChunkTextOptions = {},
+): TextChunk[] {
   const maxChars = options.maxChars ?? 1_800;
   const overlapChars = options.overlapChars ?? 250;
   const chunks: TextChunk[] = [];
@@ -40,9 +43,9 @@ export function chunkPages(pages: ExtractedPage[], options: ChunkTextOptions = {
           chunking: {
             strategy: "page-aware-character-window",
             maxChars,
-            overlapChars
-          }
-        }
+            overlapChars,
+          },
+        },
       });
 
       previousTail = block.slice(Math.max(0, block.length - overlapChars));

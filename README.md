@@ -7,6 +7,7 @@ Compliance Document Copilot is a production-style AI Engineering learning projec
 - Frontend: React, TypeScript, Vite
 - Backend: Node.js, TypeScript, Express
 - Database: PostgreSQL 16 with pgvector
+- Jobs: BullMQ with Redis
 - AI: OpenAI embeddings and Responses API
 - Package manager: pnpm
 - Runtime: Docker Compose
@@ -42,17 +43,19 @@ docker compose up --build
 docker compose exec api pnpm --filter @cdc/api db:migrate
 docker compose exec api pnpm --filter @cdc/api db:seed
 docker compose exec api pnpm --filter @cdc/api test
+docker compose logs -f api worker
 ```
 
-PostgreSQL runs the first migration automatically on fresh volumes because `apps/api/migrations` is mounted into `/docker-entrypoint-initdb.d`. The explicit migration command is useful after adding later migrations.
+PostgreSQL runs the first migration automatically on fresh volumes because `apps/api/migrations` is mounted into `/docker-entrypoint-initdb.d`. The explicit migration command is useful after adding later migrations. Redis backs the BullMQ indexing queue, and the separate `worker` service consumes document indexing jobs.
 
 ## Incremental Phases
 
 ### Phase 1: Upload + Indexing
 
-- `POST /api/documents` accepts a PDF multipart upload.
+- `POST /api/documents` accepts a PDF multipart upload and enqueues an indexing job.
 - Metadata is stored in `documents`.
-- `pdfjs-dist` extracts text page by page.
+- The API returns immediately while the BullMQ worker service processes the document.
+- The worker uses `pdfjs-dist` to extract text page by page.
 - `chunkPages` creates page-aware chunks.
 - OpenAI embeddings are generated for each chunk.
 - Chunks and vectors are stored in `document_chunks`.

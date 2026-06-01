@@ -10,16 +10,16 @@ export const errorHandler: ErrorRequestHandler = (error, req, res, _next) => {
         err: error,
         requestId: req.id,
         method: req.method,
-        path: req.path
+        path: req.path,
       },
-      "request validation failed"
+      "request validation failed",
     );
     res.status(400).json({
       error: {
         code: "validation_error",
         message: "Request validation failed",
-        issues: error.issues
-      }
+        issues: error.issues,
+      },
     });
     return;
   }
@@ -32,15 +32,15 @@ export const errorHandler: ErrorRequestHandler = (error, req, res, _next) => {
         method: req.method,
         path: req.path,
         code: error.code,
-        details: error.details
+        details: error.details,
       },
-      "application error"
+      "application error",
     );
     res.status(error.statusCode).json({
       error: {
         code: error.code,
-        message: error.message
-      }
+        message: error.message,
+      },
     });
     return;
   }
@@ -50,14 +50,14 @@ export const errorHandler: ErrorRequestHandler = (error, req, res, _next) => {
       err: error,
       requestId: req.id,
       method: req.method,
-      path: req.path
+      path: req.path,
     },
-    "unhandled request error"
+    "unhandled request error",
   );
   res.status(500).json({
     error: {
       code: "internal_error",
-      message: "Unexpected server error"
-    }
+      message: "Unexpected server error",
+    },
   });
 };

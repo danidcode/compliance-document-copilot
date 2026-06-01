@@ -3,7 +3,7 @@ export class AppError extends Error {
     message: string,
     public readonly statusCode = 500,
     public readonly code = "internal_error",
-    public readonly details?: Record<string, unknown>
+    public readonly details?: Record<string, unknown>,
   ) {
     super(message);
   }

@@ -10,11 +10,16 @@ export function mapOpenAiError(error: unknown): never {
       status: error.status,
       code,
       type: error.type,
-      requestId
+      requestId,
     };
 
     if (error.status === 401) {
-      throw new AppError("OpenAI rejected the configured API key.", 502, "openai_authentication_failed", details);
+      throw new AppError(
+        "OpenAI rejected the configured API key.",
+        502,
+        "openai_authentication_failed",
+        details,
+      );
     }
 
     if (error.status === 429) {
@@ -25,7 +30,7 @@ export function mapOpenAiError(error: unknown): never {
           : "OpenAI rate limit reached. Retry after a short delay.",
         isQuota ? 402 : 429,
         isQuota ? "openai_insufficient_quota" : "openai_rate_limited",
-        details
+        details,
       );
     }
 

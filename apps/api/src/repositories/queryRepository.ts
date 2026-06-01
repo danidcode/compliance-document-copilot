@@ -22,8 +22,8 @@ export class QueryRepository {
         input.answer ?? null,
         input.model ?? null,
         JSON.stringify(input.filters ?? {}),
-        input.retrievedChunkIds ?? []
-      ]
+        input.retrievedChunkIds ?? [],
+      ],
     );
   }
 }

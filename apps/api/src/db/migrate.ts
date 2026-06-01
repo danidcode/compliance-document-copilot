@@ -14,10 +14,15 @@ async function migrate() {
     )
   `);
 
-  const files = (await readdir(migrationsDir)).filter((file) => file.endsWith(".sql")).sort();
+  const files = (await readdir(migrationsDir))
+    .filter((file) => file.endsWith(".sql"))
+    .sort();
 
   for (const file of files) {
-    const existing = await pool.query("SELECT 1 FROM schema_migrations WHERE filename = $1", [file]);
+    const existing = await pool.query(
+      "SELECT 1 FROM schema_migrations WHERE filename = $1",
+      [file],
+    );
     if (existing.rowCount) {
       continue;
     }
@@ -26,7 +31,9 @@ async function migrate() {
     await pool.query("BEGIN");
     try {
       await pool.query(sql);
-      await pool.query("INSERT INTO schema_migrations(filename) VALUES ($1)", [file]);
+      await pool.query("INSERT INTO schema_migrations(filename) VALUES ($1)", [
+        file,
+      ]);
       await pool.query("COMMIT");
       console.log(`applied ${file}`);
     } catch (error) {

@@ -56,8 +56,8 @@ export class ChunkRepository {
             chunk.content,
             chunk.tokenEstimate,
             JSON.stringify(chunk.metadata ?? {}),
-            toPgVector(chunk.embedding)
-          ]
+            toPgVector(chunk.embedding),
+          ],
         );
       }
       await client.query("COMMIT");
@@ -73,7 +73,7 @@ export class ChunkRepository {
   async searchByEmbedding(
     embedding: number[],
     topK: number,
-    filters: ChunkSearchFilters = {}
+    filters: ChunkSearchFilters = {},
   ): Promise<ChunkDto[]> {
     const params: unknown[] = [toPgVector(embedding), topK];
     const where: string[] = ["dc.embedding IS NOT NULL"];
@@ -90,22 +90,26 @@ export class ChunkRepository {
 
     const result = await this.db.query<ChunkRow>(
       `
-        SELECT
-          dc.id,
-          dc.document_id,
-          d.name AS document_name,
-          dc.page_start,
-          dc.page_end,
-          dc.content,
-          dc.metadata,
-          1 - (dc.embedding <=> $1::vector) AS similarity
-        FROM document_chunks dc
-        JOIN documents d ON d.id = dc.document_id
-        WHERE ${where.join(" AND ")}
-        ORDER BY dc.embedding <=> $1::vector
+        WITH scored_chunks AS (
+          SELECT
+            dc.id,
+            dc.document_id,
+            d.name AS document_name,
+            dc.page_start,
+            dc.page_end,
+            dc.content,
+            dc.metadata,
+            1 - (dc.embedding <=> $1::vector) AS similarity
+          FROM document_chunks dc
+          JOIN documents d ON d.id = dc.document_id
+          WHERE ${where.join(" AND ")}
+        )
+        SELECT *
+        FROM scored_chunks
+        ORDER BY similarity DESC
         LIMIT $2
       `,
-      params
+      params,
     );
 
     return result.rows.map(toDto);
@@ -121,6 +125,6 @@ function toDto(row: ChunkRow): ChunkDto {
     pageEnd: row.page_end,
     content: row.content,
     metadata: row.metadata,
-    similarity: row.similarity
+    similarity: row.similarity,
   };
 }

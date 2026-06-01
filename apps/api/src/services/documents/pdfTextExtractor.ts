@@ -17,7 +17,7 @@ export class PdfTextExtractor {
     const pdf = await getDocument({
       data: new Uint8Array(buffer),
       disableFontFace: true,
-      standardFontDataUrl: getStandardFontDataUrl()
+      standardFontDataUrl: getStandardFontDataUrl(),
     }).promise;
 
     const pages: ExtractedPage[] = [];
@@ -35,7 +35,7 @@ export class PdfTextExtractor {
 
     return {
       pageCount: pdf.numPages,
-      pages
+      pages,
     };
   }
 }

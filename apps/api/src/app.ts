@@ -13,8 +13,8 @@ export function createApp() {
   app.use(helmet());
   app.use(
     cors({
-      origin: env.CORS_ORIGIN
-    })
+      origin: env.CORS_ORIGIN,
+    }),
   );
   app.use(express.json({ limit: "1mb" }));
   app.use(pinoHttp({ logger }));

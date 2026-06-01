@@ -11,7 +11,7 @@ export type GenerateAnswerInput = {
 
 export class OpenAiService {
   private readonly client = new OpenAI({
-    apiKey: env.OPENAI_API_KEY || "missing-openai-api-key"
+    apiKey: env.OPENAI_API_KEY || "missing-openai-api-key",
   });
 
   async embedTexts(texts: string[]): Promise<number[][]> {
@@ -23,7 +23,7 @@ export class OpenAiService {
     const response = await this.client.embeddings
       .create({
         model: env.OPENAI_EMBEDDING_MODEL,
-        input: texts
+        input: texts,
       })
       .catch(mapOpenAiError);
 
@@ -49,13 +49,13 @@ export class OpenAiService {
           {
             role: "system",
             content:
-              "You are Compliance Document Copilot. Answer only from the provided context. If the context is insufficient, say what is missing. Keep the answer concise and grounded."
+              "You are Compliance Document Copilot. Answer only from the provided context. If the context is insufficient, say what is missing. Keep the answer concise and grounded.",
           },
           {
             role: "user",
-            content: `Context:\n${input.context}\n\nQuestion:\n${input.question}`
-          }
-        ]
+            content: `Context:\n${input.context}\n\nQuestion:\n${input.question}`,
+          },
+        ],
       })
       .catch(mapOpenAiError);
 
@@ -68,7 +68,7 @@ function ensureOpenAiKey() {
     throw new AppError(
       "OPENAI_API_KEY is not configured. Add it to .env and restart the API container.",
       503,
-      "openai_api_key_missing"
+      "openai_api_key_missing",
     );
   }
 }

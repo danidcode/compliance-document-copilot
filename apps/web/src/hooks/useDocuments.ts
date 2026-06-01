@@ -10,6 +10,15 @@ export function useDocuments() {
     queryKey: documentKeys.all,
     queryFn: listDocuments,
     select: (response) => response.documents,
+    refetchInterval: (query) => {
+      const documents = query.state.data?.documents ?? [];
+      return documents.some(
+        (document) =>
+          document.status === "uploaded" || document.status === "processing",
+      )
+        ? 2_000
+        : false;
+    },
   });
 }
 

@@ -16,7 +16,7 @@ export function buildCitations(chunks: ChunkDto[]): CitationDto[] {
     documentName: chunk.documentName,
     pageStart: chunk.pageStart,
     pageEnd: chunk.pageEnd,
-    similarity: chunk.similarity
+    similarity: chunk.similarity,
   }));
 }
 

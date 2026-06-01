@@ -40,8 +40,8 @@ export class DocumentRepository {
         input.mimeType,
         input.sizeBytes,
         input.storagePath,
-        JSON.stringify(input.metadata ?? {})
-      ]
+        JSON.stringify(input.metadata ?? {}),
+      ],
     );
 
     return toDto(requiredRow(result.rows[0]));
@@ -50,7 +50,7 @@ export class DocumentRepository {
   async updateStatus(
     id: string,
     status: DocumentStatus,
-    options: { pageCount?: number; errorMessage?: string } = {}
+    options: { pageCount?: number; errorMessage?: string } = {},
   ): Promise<DocumentDto> {
     const result = await this.db.query<DocumentRow>(
       `
@@ -62,7 +62,7 @@ export class DocumentRepository {
         WHERE id = $1
         RETURNING *
       `,
-      [id, status, options.pageCount ?? null, options.errorMessage ?? null]
+      [id, status, options.pageCount ?? null, options.errorMessage ?? null],
     );
 
     return toDto(requiredRow(result.rows[0]));
@@ -70,13 +70,16 @@ export class DocumentRepository {
 
   async list(): Promise<DocumentDto[]> {
     const result = await this.db.query<DocumentRow>(
-      "SELECT * FROM documents ORDER BY created_at DESC LIMIT 100"
+      "SELECT * FROM documents ORDER BY created_at DESC LIMIT 100",
     );
     return result.rows.map(toDto);
   }
 
   async findById(id: string): Promise<DocumentDto | null> {
-    const result = await this.db.query<DocumentRow>("SELECT * FROM documents WHERE id = $1", [id]);
+    const result = await this.db.query<DocumentRow>(
+      "SELECT * FROM documents WHERE id = $1",
+      [id],
+    );
     const row = result.rows[0];
     return row ? toDto(row) : null;
   }
@@ -93,7 +96,7 @@ function toDto(row: DocumentRow): DocumentDto {
     status: row.status,
     metadata: row.metadata,
     createdAt: row.created_at.toISOString(),
-    updatedAt: row.updated_at.toISOString()
+    updatedAt: row.updated_at.toISOString(),
   };
 }
 

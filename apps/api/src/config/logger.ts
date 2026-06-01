@@ -9,9 +9,9 @@ const loggerOptions: LoggerOptions =
           target: "pino-pretty",
           options: {
             colorize: true,
-            translateTime: "HH:MM:ss"
-          }
-        }
+            translateTime: "HH:MM:ss",
+          },
+        },
       };
 
 export const logger = pino(loggerOptions);

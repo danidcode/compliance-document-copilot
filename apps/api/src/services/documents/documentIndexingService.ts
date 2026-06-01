@@ -11,17 +11,22 @@ export class DocumentIndexingService {
     private readonly documents: DocumentRepository,
     private readonly chunks: ChunkRepository,
     private readonly pdfTextExtractor: PdfTextExtractor,
-    private readonly ai: OpenAiService
+    private readonly ai: OpenAiService,
   ) {}
 
-  async indexUploadedDocument(document: DocumentDto, storagePath: string): Promise<UploadDocumentResponse> {
+  async indexUploadedDocument(
+    document: DocumentDto,
+    storagePath: string,
+  ): Promise<UploadDocumentResponse> {
     await this.documents.updateStatus(document.id, "processing");
 
     try {
       const buffer = await readFile(storagePath);
       const extracted = await this.pdfTextExtractor.extract(buffer);
       const textChunks = chunkPages(extracted.pages);
-      const embeddings = await this.ai.embedTexts(textChunks.map((chunk) => chunk.content));
+      const embeddings = await this.ai.embedTexts(
+        textChunks.map((chunk) => chunk.content),
+      );
 
       await this.chunks.createMany(
         textChunks.map((chunk, index) => ({
@@ -32,21 +37,26 @@ export class DocumentIndexingService {
           content: chunk.content,
           tokenEstimate: chunk.tokenEstimate,
           metadata: chunk.metadata,
-          embedding: requiredEmbedding(embeddings[index])
-        }))
+          embedding: requiredEmbedding(embeddings[index]),
+        })),
       );
 
-      const indexedDocument = await this.documents.updateStatus(document.id, "indexed", {
-        pageCount: extracted.pageCount
-      });
+      const indexedDocument = await this.documents.updateStatus(
+        document.id,
+        "indexed",
+        {
+          pageCount: extracted.pageCount,
+        },
+      );
 
       return {
         document: indexedDocument,
-        chunksIndexed: textChunks.length
+        chunksIndexed: textChunks.length,
       };
     } catch (error) {
       await this.documents.updateStatus(document.id, "failed", {
-        errorMessage: error instanceof Error ? error.message : "Unknown indexing failure"
+        errorMessage:
+          error instanceof Error ? error.message : "Unknown indexing failure",
       });
       throw error;
     }

@@ -9,7 +9,7 @@ export class RagService {
   constructor(
     private readonly vectorSearch: VectorSearchService,
     private readonly ai: OpenAiService,
-    private readonly queries: QueryRepository
+    private readonly queries: QueryRepository,
   ) {}
 
   async answer(request: ChatRequest): Promise<ChatResponse> {
@@ -18,7 +18,7 @@ export class RagService {
     const answer = await this.ai.generateGroundedAnswer({
       question: request.question,
       context,
-      temperature: request.temperature
+      temperature: request.temperature,
     });
     const citations = buildCitations(search.matches);
 
@@ -27,13 +27,13 @@ export class RagService {
       answer,
       model: env.OPENAI_CHAT_MODEL,
       filters: request.filters,
-      retrievedChunkIds: citations.map((citation) => citation.chunkId)
+      retrievedChunkIds: citations.map((citation) => citation.chunkId),
     });
 
     return {
       answer,
       citations,
-      retrievedChunks: search.matches
+      retrievedChunks: search.matches,
     };
   }
 }
