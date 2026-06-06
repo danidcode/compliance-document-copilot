@@ -4,6 +4,7 @@ import {
   DocumentController,
   uploadPdf,
 } from "../controllers/documentController.js";
+import { AgentChatController } from "../controllers/agentChatController.js";
 import { ChatController } from "../controllers/chatController.js";
 import { EvaluationController } from "../controllers/evaluationController.js";
 import { SearchController } from "../controllers/searchController.js";
@@ -11,6 +12,7 @@ import { ChunkRepository } from "../repositories/chunkRepository.js";
 import { DocumentRepository } from "../repositories/documentRepository.js";
 import { QueryRepository } from "../repositories/queryRepository.js";
 import { OpenAiService } from "../services/ai/openAiService.js";
+import { ComplianceAgentService } from "../services/agents/complianceAgentService.js";
 import { EvaluationService } from "../services/rag/evaluationService.js";
 import { RagService } from "../services/rag/ragService.js";
 import { VectorSearchService } from "../services/vector/vectorSearchService.js";
@@ -24,11 +26,13 @@ export function createRoutes(): Router {
   const ai = new OpenAiService();
   const vectorSearch = new VectorSearchService(chunks, ai);
   const rag = new RagService(vectorSearch, ai, queries);
+  const complianceAgent = new ComplianceAgentService(vectorSearch, queries);
   const evaluations = new EvaluationService(rag);
 
   const documentController = new DocumentController(documents);
   const searchController = new SearchController(vectorSearch);
   const chatController = new ChatController(rag);
+  const agentChatController = new AgentChatController(complianceAgent);
   const evaluationController = new EvaluationController(evaluations);
 
   router.get("/health", (_req, res) => {
@@ -42,6 +46,7 @@ export function createRoutes(): Router {
   );
   router.post("/search", searchController.search);
   router.post("/chat", chatController.chat);
+  router.post("/chat/agent", agentChatController.chat);
   router.post("/evaluations/run", evaluationController.run);
 
   return router;

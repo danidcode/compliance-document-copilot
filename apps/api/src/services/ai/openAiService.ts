@@ -63,7 +63,7 @@ export class OpenAiService {
   }
 }
 
-function ensureOpenAiKey() {
+export function ensureOpenAiKey() {
   if (!env.OPENAI_API_KEY) {
     throw new AppError(
       "OPENAI_API_KEY is not configured. Add it to .env and restart the API container.",

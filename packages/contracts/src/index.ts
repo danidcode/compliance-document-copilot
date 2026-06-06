@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-export const DocumentStatusSchema = z.enum(["uploaded", "processing", "indexed", "failed"]);
+export const DocumentStatusSchema = z.enum([
+  "uploaded",
+  "processing",
+  "indexed",
+  "failed",
+]);
 export type DocumentStatus = z.infer<typeof DocumentStatusSchema>;
 
 export const DocumentSchema = z.object({
@@ -13,7 +18,7 @@ export const DocumentSchema = z.object({
   status: DocumentStatusSchema,
   metadata: z.record(z.string(), z.unknown()),
   createdAt: z.string(),
-  updatedAt: z.string()
+  updatedAt: z.string(),
 });
 export type DocumentDto = z.infer<typeof DocumentSchema>;
 
@@ -25,18 +30,20 @@ export const ChunkSchema = z.object({
   pageEnd: z.number().int().positive(),
   content: z.string(),
   metadata: z.record(z.string(), z.unknown()),
-  similarity: z.number().optional()
+  similarity: z.number().optional(),
 });
 export type ChunkDto = z.infer<typeof ChunkSchema>;
 
 export const UploadDocumentResponseSchema = z.object({
   document: DocumentSchema,
-  chunksIndexed: z.number().int().nonnegative()
+  chunksIndexed: z.number().int().nonnegative(),
 });
-export type UploadDocumentResponse = z.infer<typeof UploadDocumentResponseSchema>;
+export type UploadDocumentResponse = z.infer<
+  typeof UploadDocumentResponseSchema
+>;
 
 export const DocumentsResponseSchema = z.object({
-  documents: z.array(DocumentSchema)
+  documents: z.array(DocumentSchema),
 });
 export type DocumentsResponse = z.infer<typeof DocumentsResponseSchema>;
 
@@ -46,15 +53,15 @@ export const SearchRequestSchema = z.object({
   filters: z
     .object({
       documentIds: z.array(z.string().uuid()).optional(),
-      metadata: z.record(z.string(), z.unknown()).optional()
+      metadata: z.record(z.string(), z.unknown()).optional(),
     })
-    .optional()
+    .optional(),
 });
 export type SearchRequest = z.infer<typeof SearchRequestSchema>;
 
 export const SearchResponseSchema = z.object({
   query: z.string(),
-  matches: z.array(ChunkSchema)
+  matches: z.array(ChunkSchema),
 });
 export type SearchResponse = z.infer<typeof SearchResponseSchema>;
 
@@ -64,26 +71,43 @@ export const CitationSchema = z.object({
   documentName: z.string(),
   pageStart: z.number().int().positive(),
   pageEnd: z.number().int().positive(),
-  similarity: z.number().optional()
+  similarity: z.number().optional(),
 });
 export type CitationDto = z.infer<typeof CitationSchema>;
 
 export const ChatRequestSchema = SearchRequestSchema.extend({
-  temperature: z.number().min(0).max(1).default(0.1)
+  temperature: z.number().min(0).max(1).default(0.1),
 });
 export type ChatRequest = z.infer<typeof ChatRequestSchema>;
 
 export const ChatResponseSchema = z.object({
   answer: z.string(),
   citations: z.array(CitationSchema),
-  retrievedChunks: z.array(ChunkSchema)
+  retrievedChunks: z.array(ChunkSchema),
 });
 export type ChatResponse = z.infer<typeof ChatResponseSchema>;
+
+export const AgentStepSchema = z.object({
+  type: z.enum(["tool_call", "handoff", "final_answer"]),
+  name: z.string(),
+  input: z.record(z.string(), z.unknown()).optional(),
+  summary: z.string(),
+  citationCount: z.number().int().nonnegative().optional(),
+});
+export type AgentStepDto = z.infer<typeof AgentStepSchema>;
+
+export const AgentChatRequestSchema = ChatRequestSchema;
+export type AgentChatRequest = z.infer<typeof AgentChatRequestSchema>;
+
+export const AgentChatResponseSchema = ChatResponseSchema.extend({
+  agentSteps: z.array(AgentStepSchema),
+});
+export type AgentChatResponse = z.infer<typeof AgentChatResponseSchema>;
 
 export const EvaluationCaseSchema = z.object({
   id: z.string(),
   question: z.string(),
-  expectedSourceHint: z.string().optional()
+  expectedSourceHint: z.string().optional(),
 });
 export type EvaluationCase = z.infer<typeof EvaluationCaseSchema>;
 
@@ -93,6 +117,6 @@ export const EvaluationResultSchema = z.object({
   answer: z.string(),
   citationCount: z.number().int().nonnegative(),
   passed: z.boolean(),
-  notes: z.string()
+  notes: z.string(),
 });
 export type EvaluationResult = z.infer<typeof EvaluationResultSchema>;

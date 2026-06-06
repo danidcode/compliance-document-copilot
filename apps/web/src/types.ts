@@ -1,1 +1,1 @@
-export type Phase = "upload" | "search" | "chat" | "evaluate";
+export type Phase = "upload" | "search" | "chat" | "agent" | "evaluate";

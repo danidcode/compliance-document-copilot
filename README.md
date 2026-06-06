@@ -8,7 +8,7 @@ Compliance Document Copilot is a production-style AI Engineering learning projec
 - Backend: Node.js, TypeScript, Express
 - Database: PostgreSQL 16 with pgvector
 - Jobs: BullMQ with Redis
-- AI: OpenAI embeddings and Responses API
+- AI: OpenAI embeddings, Responses API, and Agents SDK
 - Package manager: pnpm
 - Runtime: Docker Compose
 
@@ -78,6 +78,13 @@ PostgreSQL runs the first migration automatically on fresh volumes because `apps
 - Every chat response includes citation objects with chunk id, document id, document name, page range, and similarity.
 - `POST /api/evaluations/run` runs a small smoke evaluation that checks answer grounding and citation presence.
 
+### Phase 5: Agentic RAG
+
+- `POST /api/chat/agent` runs an OpenAI Agents SDK workflow.
+- The compliance agent has a typed `compliance_document_search` tool backed by the existing pgvector search service.
+- The response includes normal answer fields plus `agentSteps` so you can inspect tool calls and final synthesis.
+- See `docs/agentic-ai.md` for the implementation walkthrough and practice roadmap.
+
 ## Architectural Decisions
 
 The backend is organized around clean boundaries:
@@ -114,6 +121,14 @@ Chat:
 
 ```bash
 curl -X POST http://localhost:4000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"question":"When must data incidents be reported?","topK":5,"temperature":0.1}'
+```
+
+Agentic chat:
+
+```bash
+curl -X POST http://localhost:4000/api/chat/agent \
   -H "Content-Type: application/json" \
   -d '{"question":"When must data incidents be reported?","topK":5,"temperature":0.1}'
 ```

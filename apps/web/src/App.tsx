@@ -50,10 +50,12 @@ export function App() {
           disabled={indexedCount === 0}
           isSearching={copilot.isSearching}
           isChatting={copilot.isChatting}
+          isAgentRunning={copilot.isAgentRunning}
           onQuestionChange={copilot.setQuestion}
           onTopKChange={copilot.setTopK}
           onSearch={copilot.runSearch}
           onAsk={copilot.runChat}
+          onAgent={copilot.runAgent}
         />
 
         <ErrorBanner error={error} />

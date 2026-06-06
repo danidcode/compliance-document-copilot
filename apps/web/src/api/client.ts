@@ -1,13 +1,16 @@
 import {
+  AgentChatResponseSchema,
   ChatResponseSchema,
   DocumentsResponseSchema,
   SearchResponseSchema,
   UploadDocumentResponseSchema,
+  type AgentChatRequest,
   type ChatRequest,
-  type SearchRequest
+  type SearchRequest,
 } from "@cdc/contracts";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000";
 
 export async function listDocuments() {
   const response = await fetch(`${API_BASE_URL}/api/documents`);
@@ -21,7 +24,7 @@ export async function uploadDocument(file: File) {
 
   const response = await fetch(`${API_BASE_URL}/api/documents`, {
     method: "POST",
-    body: formData
+    body: formData,
   });
   assertOk(response);
   return UploadDocumentResponseSchema.parse(await response.json());
@@ -31,7 +34,7 @@ export async function searchDocuments(request: SearchRequest) {
   const response = await fetch(`${API_BASE_URL}/api/search`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(request)
+    body: JSON.stringify(request),
   });
   assertOk(response);
   return SearchResponseSchema.parse(await response.json());
@@ -41,10 +44,20 @@ export async function askQuestion(request: ChatRequest) {
   const response = await fetch(`${API_BASE_URL}/api/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(request)
+    body: JSON.stringify(request),
   });
   assertOk(response);
   return ChatResponseSchema.parse(await response.json());
+}
+
+export async function askAgent(request: AgentChatRequest) {
+  const response = await fetch(`${API_BASE_URL}/api/chat/agent`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(request),
+  });
+  assertOk(response);
+  return AgentChatResponseSchema.parse(await response.json());
 }
 
 async function assertOk(response: Response) {

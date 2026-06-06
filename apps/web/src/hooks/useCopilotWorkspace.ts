@@ -1,7 +1,11 @@
 import { useState } from "react";
-import type { ChatResponse, SearchResponse } from "@cdc/contracts";
+import type {
+  AgentChatResponse,
+  ChatResponse,
+  SearchResponse,
+} from "@cdc/contracts";
 import { useMutation } from "@tanstack/react-query";
-import { askQuestion, searchDocuments } from "../api/client.js";
+import { askAgent, askQuestion, searchDocuments } from "../api/client.js";
 import type { Phase } from "../types.js";
 
 export function useCopilotWorkspace() {
@@ -11,7 +15,9 @@ export function useCopilotWorkspace() {
   );
   const [topK, setTopK] = useState(6);
   const [searchResult, setSearchResult] = useState<SearchResponse | null>(null);
-  const [chatResult, setChatResult] = useState<ChatResponse | null>(null);
+  const [chatResult, setChatResult] = useState<
+    ChatResponse | AgentChatResponse | null
+  >(null);
 
   const searchMutation = useMutation({
     mutationFn: searchDocuments,
@@ -36,12 +42,28 @@ export function useCopilotWorkspace() {
     },
   });
 
+  const agentMutation = useMutation({
+    mutationFn: askAgent,
+    onMutate: () => {
+      setSearchResult(null);
+      setChatResult(null);
+    },
+    onSuccess: (response) => {
+      setChatResult(response);
+      setPhase("agent");
+    },
+  });
+
   const runSearch = () => {
     searchMutation.mutate({ question, topK });
   };
 
   const runChat = () => {
     chatMutation.mutate({ question, topK, temperature: 0.1 });
+  };
+
+  const runAgent = () => {
+    agentMutation.mutate({ question, topK, temperature: 0.1 });
   };
 
   return {
@@ -55,8 +77,10 @@ export function useCopilotWorkspace() {
     chatResult,
     runSearch,
     runChat,
+    runAgent,
     isSearching: searchMutation.isPending,
     isChatting: chatMutation.isPending,
-    error: searchMutation.error ?? chatMutation.error,
+    isAgentRunning: agentMutation.isPending,
+    error: searchMutation.error ?? chatMutation.error ?? agentMutation.error,
   };
 }

@@ -1,5 +1,9 @@
-import type { ChatResponse, SearchResponse } from "@cdc/contracts";
-import { Search } from "lucide-react";
+import type {
+  AgentChatResponse,
+  ChatResponse,
+  SearchResponse,
+} from "@cdc/contracts";
+import { Bot, Search } from "lucide-react";
 import { Badge } from "../../components/ui/badge.js";
 import { Card, CardContent } from "../../components/ui/card.js";
 import type { Phase } from "../../types.js";
@@ -7,7 +11,7 @@ import type { Phase } from "../../types.js";
 type ResultsPanelProps = {
   phase: Phase;
   searchResult: SearchResponse | null;
-  chatResult: ChatResponse | null;
+  chatResult: ChatResponse | AgentChatResponse | null;
 };
 
 export function ResultsPanel({
@@ -18,8 +22,8 @@ export function ResultsPanel({
   return (
     <Card className="min-h-[520px]">
       <CardContent className="p-5">
-        {phase === "chat" && chatResult ? (
-          <AnswerView result={chatResult} />
+        {(phase === "chat" || phase === "agent") && chatResult ? (
+          <AnswerView phase={phase} result={chatResult} />
         ) : null}
         {phase !== "chat" && searchResult ? (
           <SearchView result={searchResult} />
@@ -30,21 +34,32 @@ export function ResultsPanel({
   );
 }
 
-function AnswerView({ result }: { result: ChatResponse }) {
+function AnswerView({
+  phase,
+  result,
+}: {
+  phase: Phase;
+  result: ChatResponse | AgentChatResponse;
+}) {
+  const agentSteps = "agentSteps" in result ? result.agentSteps : [];
+
   return (
     <div>
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
           <p className="mb-1 text-xs font-semibold uppercase text-muted-foreground">
-            Phase 3
+            {phase === "agent" ? "Phase 4" : "Phase 3"}
           </p>
-          <h2 className="text-base font-semibold">Grounded Answer</h2>
+          <h2 className="text-base font-semibold">
+            {phase === "agent" ? "Agentic Grounded Answer" : "Grounded Answer"}
+          </h2>
         </div>
         <Badge variant="secondary">{result.citations.length} sources</Badge>
       </div>
       <p className="whitespace-pre-wrap rounded-lg border bg-muted/35 p-4 leading-7">
         {result.answer}
       </p>
+      {agentSteps.length > 0 ? <AgentSteps steps={agentSteps} /> : null}
       <h3 className="mb-3 mt-5 text-sm font-semibold">Sources</h3>
       <div className="grid gap-2">
         {result.citations.map((citation) => (
@@ -68,6 +83,42 @@ function AnswerView({ result }: { result: ChatResponse }) {
         ))}
       </div>
     </div>
+  );
+}
+
+function AgentSteps({ steps }: { steps: AgentChatResponse["agentSteps"] }) {
+  return (
+    <section className="mt-5">
+      <div className="mb-3 flex items-center gap-2">
+        <Bot className="size-4 text-muted-foreground" aria-hidden />
+        <h3 className="text-sm font-semibold">Agent Steps</h3>
+      </div>
+      <div className="grid gap-2">
+        {steps.map((step, index) => (
+          <article
+            key={`${step.type}-${index}`}
+            className="rounded-lg border p-3"
+          >
+            <div className="mb-1 flex flex-wrap items-center gap-2">
+              <Badge
+                variant={step.type === "tool_call" ? "secondary" : "outline"}
+              >
+                {step.type.replace("_", " ")}
+              </Badge>
+              <strong className="text-sm">{step.name}</strong>
+              {typeof step.citationCount === "number" ? (
+                <span className="text-xs text-muted-foreground">
+                  {step.citationCount} citations
+                </span>
+              ) : null}
+            </div>
+            <p className="text-sm leading-6 text-muted-foreground">
+              {step.summary}
+            </p>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 

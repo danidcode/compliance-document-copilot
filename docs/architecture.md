@@ -29,5 +29,5 @@ The `@cdc/contracts` package exports Zod schemas and TypeScript types used by bo
 - Add metadata filters in `ChunkRepository.searchByEmbedding`.
 - Add reranking between vector retrieval and RAG prompting.
 - Add streaming in `OpenAiService.generateGroundedAnswer`.
-- Add tool calling by turning `RagService` into an agent orchestration service.
+- Extend the agentic RAG path in `ComplianceAgentService` with specialist agents, guardrails, and streaming.
 - Add richer evals in `EvaluationService`.

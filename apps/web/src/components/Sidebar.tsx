@@ -12,7 +12,8 @@ const phases: Array<{ phase: Phase; label: string }> = [
   { phase: "upload", label: "1 Upload" },
   { phase: "search", label: "2 Search" },
   { phase: "chat", label: "3 RAG Chat" },
-  { phase: "evaluate", label: "4 Eval" },
+  { phase: "agent", label: "4 Agent" },
+  { phase: "evaluate", label: "5 Eval" },
 ];
 
 export function Sidebar({

@@ -1,4 +1,4 @@
-import { Loader2, MessageSquareText, Search } from "lucide-react";
+import { Bot, Loader2, MessageSquareText, Search } from "lucide-react";
 import { Button } from "../../components/ui/button.js";
 import { Input } from "../../components/ui/input.js";
 
@@ -8,10 +8,12 @@ type QueryToolbarProps = {
   disabled: boolean;
   isSearching: boolean;
   isChatting: boolean;
+  isAgentRunning: boolean;
   onQuestionChange: (question: string) => void;
   onTopKChange: (topK: number) => void;
   onSearch: () => void;
   onAsk: () => void;
+  onAgent: () => void;
 };
 
 export function QueryToolbar({
@@ -20,13 +22,15 @@ export function QueryToolbar({
   disabled,
   isSearching,
   isChatting,
+  isAgentRunning,
   onQuestionChange,
   onTopKChange,
   onSearch,
   onAsk,
+  onAgent,
 }: QueryToolbarProps) {
   return (
-    <header className="mb-4 grid items-center gap-2 lg:grid-cols-[minmax(220px,1fr)_96px_auto_auto]">
+    <header className="mb-4 grid items-center gap-2 lg:grid-cols-[minmax(220px,1fr)_96px_auto_auto_auto]">
       <div className="flex h-10 items-center gap-2 rounded-md border border-input bg-background px-3">
         <MessageSquareText
           className="size-4 text-muted-foreground"
@@ -54,7 +58,7 @@ export function QueryToolbar({
         type="button"
         variant="outline"
         onClick={onSearch}
-        disabled={disabled || isSearching || isChatting}
+        disabled={disabled || isSearching || isChatting || isAgentRunning}
       >
         {isSearching ? <Loader2 className="animate-spin" /> : <Search />}
         Search
@@ -62,7 +66,7 @@ export function QueryToolbar({
       <Button
         type="button"
         onClick={onAsk}
-        disabled={disabled || isSearching || isChatting}
+        disabled={disabled || isSearching || isChatting || isAgentRunning}
       >
         {isChatting ? (
           <Loader2 className="animate-spin" />
@@ -70,6 +74,15 @@ export function QueryToolbar({
           <MessageSquareText />
         )}
         Ask
+      </Button>
+      <Button
+        type="button"
+        variant="secondary"
+        onClick={onAgent}
+        disabled={disabled || isSearching || isChatting || isAgentRunning}
+      >
+        {isAgentRunning ? <Loader2 className="animate-spin" /> : <Bot />}
+        Agent
       </Button>
     </header>
   );
