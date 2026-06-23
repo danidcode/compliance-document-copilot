@@ -1,6 +1,6 @@
 # Compliance Document Copilot
 
-Compliance Document Copilot is a production-style AI Engineering learning project for PDF upload, page-aware indexing, vector search with PostgreSQL + pgvector, and grounded RAG answers with citations.
+Compliance Document Copilot is a production-style AI Engineering project for PDF upload, page-aware indexing, vector search with PostgreSQL + pgvector, and grounded RAG answers with citations.
 
 ## Stack
 
